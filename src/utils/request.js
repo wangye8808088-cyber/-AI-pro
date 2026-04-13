@@ -1,10 +1,13 @@
 import axios from "axios";
 import { ElMessage } from "element-plus";
 
-// 创建axios实例
+// 线上默认 /api，由 vercel.json 转发到真实后端；若直连 API（需后端 CORS），在 Vercel 配置 VITE_API_BASE（如 https://xxx.com/api）
+const apiBase =
+  import.meta.env.VITE_API_BASE?.trim() || "/api";
+
 const service = axios.create({
-  baseURL: "/api", //请求的前缀
-  timeout: 5000, //请求的超时事件
+  baseURL: apiBase,
+  timeout: 5000,
 });
 
 // 请求拦截器
