@@ -1,0 +1,187 @@
+html, body, div, span, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+abbr, address, cite, code,
+del, dfn, em, img, ins, kbd, q, samp,
+small, strong, sub, sup, var,
+b, i,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  vertical-align: baseline;
+  background: transparent;
+}
+
+a {
+  text-decoration: none;
+}
+
+li {
+  list-style: none;
+}
+
+/* —— Headspace 风格：暖橙主色、奶油底、柔和对比、友好圆角 —— */
+:root {
+  /* 品牌 */
+  --hs-orange: #ea580c;
+  --hs-orange-deep: #c2410c;
+  --hs-orange-light: #fb923c;
+  --hs-orange-soft: #fff7ed;
+  --hs-coral: #fda4af;
+  --hs-peach: #ffedd5;
+  --hs-cream: #fffbf7;
+  --hs-cream-mid: #fef3e8;
+  --hs-cream-deep: #fde8d8;
+  --hs-lilac: #ede9fe;
+  --hs-mint: #d8f3e7;
+  --hs-text: #292524;
+  --hs-text-muted: #78716c;
+  --hs-footer: #1c1917;
+  --hs-radius-lg: 20px;
+  --hs-radius-xl: 28px;
+  --hs-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --hs-shadow: 0 20px 50px rgba(234, 88, 12, 0.08);
+  --hs-shadow-soft: 0 12px 40px rgba(41, 37, 36, 0.06);
+
+  /* 兼容旧变量名（组件内仍引用 mh-*） */
+  --mh-teal-600: var(--hs-orange-deep);
+  --mh-teal-500: var(--hs-orange);
+  --mh-teal-400: var(--hs-orange-light);
+  --mh-gold: #fbbf24;
+  --mh-slate-900: var(--hs-text);
+  --mh-slate-600: var(--hs-text-muted);
+  --mh-ease-out: var(--hs-ease-out);
+  --mh-shadow-soft: var(--hs-shadow-soft);
+
+  /* Element Plus 主色与圆角（与 Headspace 式暖橙一致） */
+  --el-color-primary: #ea580c;
+  --el-color-primary-light-3: #fb923c;
+  --el-color-primary-light-5: #fdba74;
+  --el-color-primary-light-7: #fed7aa;
+  --el-color-primary-light-8: #ffedd5;
+  --el-color-primary-light-9: #fff7ed;
+  --el-color-primary-dark-2: #c2410c;
+  --el-border-radius-base: 12px;
+  --el-border-radius-small: 10px;
+  --el-border-radius-round: 999px;
+}
+
+body {
+  height: 100vh;
+  /* 圆角友好、易读；不依赖外网字体（国内可用） */
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "PingFang SC",
+    "Hiragino Sans GB",
+    "Microsoft YaHei",
+    sans-serif;
+  background-color: var(--hs-cream);
+  color: var(--hs-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  height: 100%;
+}
+
+/* —— 页面切换 —— */
+.page-fade-enter-active,
+.page-fade-leave-active {
+  transition:
+    opacity 0.26s var(--hs-ease-out),
+    transform 0.26s var(--hs-ease-out);
+}
+
+.page-fade-enter-from {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.page-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+@keyframes mh-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes mh-gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes mh-shimmer {
+  0% {
+    opacity: 0.35;
+    transform: translateX(-30%) skewX(-12deg);
+  }
+  100% {
+    opacity: 0.55;
+    transform: translateX(120%) skewX(-12deg);
+  }
+}
+
+@keyframes mh-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-fade-enter-active,
+  .page-fade-leave-active {
+    transition-duration: 0.01ms !important;
+  }
+
+  .mh-anim-float,
+  .mh-anim-gradient,
+  .mh-anim-fade-up,
+  .mh-anim-shimmer {
+    animation: none !important;
+  }
+}
+
+.el-header {
+  height: 50px !important;
+  padding: 0 !important;
+  box-shadow: 0 1px 0 rgba(234, 88, 12, 0.06);
+  border-bottom: 1px solid rgba(253, 230, 138, 0.35);
+  background: var(--hs-cream) !important;
+}
+
+.pagination-info {
+  padding: 10px 0;
+  background-color: #fff;
+}
+
+.pagination-info .el-pagination {
+  justify-content: end;
+}
