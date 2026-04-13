@@ -29,7 +29,7 @@ import Navbar from "./Navbar.vue";
 <style scoped lang="scss">
 .backend-layout {
   height: 100vh;
-  background: var(--hs-cream, #fffbf7);
+  background: var(--hs-cream, #1c1814);
 
   .el-header {
     // !important：强制设置高度，忽略其他样式。
@@ -41,10 +41,10 @@ import Navbar from "./Navbar.vue";
     height: 100%;
     .content-container {
       padding: 20px;
-      background-color: #fffdfb;
+      background-color: var(--hs-cream-mid, #231f1b);
       border-radius: var(--hs-radius-lg, 20px);
-      box-shadow: var(--hs-shadow-soft, 0 12px 40px rgba(41, 37, 36, 0.06));
-      border: 1px solid rgba(254, 215, 170, 0.35);
+      box-shadow: var(--hs-shadow-soft);
+      border: 1px solid var(--hs-border, #38322b);
       // 利用了 CSS 的计算函数 calc()。
       // 100%：代表父容器（通常是整个浏览器窗口或布局外壳）的总高度。
       // - 74px：减去 74 像素。

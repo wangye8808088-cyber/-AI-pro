@@ -325,12 +325,12 @@ onMounted(() => {
 
     h4 {
       margin: 0 0 16px 0;
-      color: #303133;
+      color: #ede8e1;
       font-size: 16px;
 
       i {
         margin-right: 8px;
-        color: #409eff;
+        color: #60a5fa;
       }
     }
   }
@@ -348,7 +348,7 @@ onMounted(() => {
 
   .ai-analysis-preview {
     font-size: 11px;
-    color: #909399;
+    color: #6b5e54;
     margin-top: 2px;
   }
 }
@@ -360,42 +360,42 @@ onMounted(() => {
   .ai-improvements-section {
     margin-top: 16px;
     padding: 12px;
-    background-color: #f8f9fa;
+    background-color: #2a2520;
     border-radius: 4px;
 
     h5 {
       margin: 0 0 8px 0;
-      color: #606266;
+      color: #c8bcb0;
       font-size: 14px;
       font-weight: 600;
 
       i {
         margin-right: 6px;
-        color: #909399;
+        color: #6b5e54;
       }
     }
   }
 
-  .keywords-container {
+    .keywords-container {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
 
     .keyword-tag {
-      background-color: #e1f3d8;
-      color: #67c23a;
-      border-color: #b3d8a4;
+      background-color: rgba(74,222,128,0.12);
+      color: #4ade80;
+      border-color: rgba(74,222,128,0.3);
     }
   }
 
   .suggestion-content,
   .risk-content {
     line-height: 1.6;
-    color: #606266;
-    background-color: white;
+    color: #c8bcb0;
+    background-color: #231f1b;
     padding: 8px;
     border-radius: 4px;
-    border: 1px solid #ebeef5;
+    border: 1px solid #38322b;
   }
 
   .improvement-list {
@@ -404,7 +404,7 @@ onMounted(() => {
 
     li {
       margin-bottom: 4px;
-      color: #606266;
+      color: #c8bcb0;
       line-height: 1.5;
     }
   }
@@ -412,12 +412,12 @@ onMounted(() => {
   .ai-analysis-meta {
     margin-top: 16px;
     padding-top: 12px;
-    border-top: 1px solid #ebeef5;
+    border-top: 1px solid #38322b;
 
     .analysis-time {
       margin: 0;
       font-size: 12px;
-      color: #909399;
+      color: #6b5e54;
 
       i {
         margin-right: 4px;

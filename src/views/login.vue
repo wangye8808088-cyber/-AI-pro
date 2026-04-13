@@ -122,7 +122,7 @@ const submitForm = async (formEl) => {
       align-items: center;
       gap: 6px;
       margin-bottom: 60px;
-      color: var(--mh-slate-600, #475569);
+      color: var(--hs-text-muted, #8a7a6c);
       font-size: 15px;
       font-weight: 500;
       cursor: pointer;

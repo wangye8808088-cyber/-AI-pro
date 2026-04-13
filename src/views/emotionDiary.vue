@@ -202,148 +202,170 @@ const iconUrl = new URL("@/assets/images/like.png", import.meta.url).href;
 </script>
 
 <style lang="scss" scoped>
+$orange: #f97316;
+$ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
 .emotionDiary-container {
-  background: linear-gradient(
-    135deg,
-    var(--hs-cream, #fffbf7) 0%,
-    #fffdfb 50%,
-    var(--hs-peach, #ffedd5) 100%
-  );
+  background: #1c1814;
+
+  /* ── header ── */
   .header-section {
     position: relative;
     overflow: hidden;
-    background: linear-gradient(
-      125deg,
-      #fb7185 0%,
-      #fb923c 45%,
-      #f97316 100%
-    );
+    background: linear-gradient(125deg, #fb7185 0%, #fb923c 45%, #f97316 100%);
     background-size: 200% 200%;
     animation: diary-header-shift 12s ease infinite;
     color: white;
-    padding: 48px;
+    padding: clamp(2rem, 5vw, 3rem) clamp(1.5rem, 5vw, 3rem);
+
     .header-content {
       position: relative;
       z-index: 1;
       display: flex;
       align-items: center;
       gap: 12px;
+      max-width: 860px;
+      margin: 0 auto;
       animation: mh-fade-up 0.65s var(--mh-ease-out, ease-out) both;
+      h1 { font-size: clamp(1.4rem, 3vw, 1.9rem); font-weight: 800; letter-spacing: -0.02em; }
     }
   }
 
   @keyframes diary-header-shift {
-    0%,
-    100% {
-      background-position: 0% 50%;
-    }
-    50% {
-      background-position: 100% 50%;
-    }
+    0%, 100% { background-position: 0% 50%; }
+    50%       { background-position: 100% 50%; }
   }
-  .content {
-    margin: 0 auto;
-    width: 980px;
-    padding: 20px;
-    .diary-card {
-      margin-bottom: 20px;
-      background: white;
-      border-radius: 14px;
-      padding: 20px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-      border: 1px solid rgba(148, 163, 184, 0.15);
-      transition:
-        transform 0.28s var(--mh-ease-out, ease-out),
-        box-shadow 0.28s ease;
 
-      &:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+  /* ── content ── */
+  .content {
+    max-width: 860px;
+    width: 100%;
+    margin: 0 auto;
+    padding: clamp(16px, 3vw, 24px);
+    box-sizing: border-box;
+  }
+
+  /* ── card ── */
+  .diary-card {
+    margin-bottom: 20px;
+    background: #231f1b;
+    border-radius: 16px;
+    padding: clamp(16px, 3vw, 24px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    border: 1.5px solid #38322b;
+    transition: transform 0.28s $ease-out, box-shadow 0.28s ease;
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 34px rgba(249, 115, 22, 0.12);
+    }
+
+    .title {
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #ede8e1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      &::before {
+        content: '';
+        display: inline-block;
+        width: 4px; height: 18px;
+        background: $orange;
+        border-radius: 2px;
       }
-      .title {
-        margin-bottom: 20px;
-        font-size: 25px;
+    }
+
+    .section {
+      margin-bottom: 20px;
+      p { font-size: 0.925rem; color: #8a7a6c; margin-bottom: 14px; }
+    }
+
+    /* ── emotion grid ── */
+    .emotion-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+
+      .emotion-card {
+        padding: 14px 18px;
+        border: 2px solid #38322b;
+        border-radius: 14px;
+        text-align: center;
+        cursor: pointer;
+        background: #2a2520;
+        min-width: 80px;
+        transition:
+          border-color 0.22s ease,
+          background 0.22s ease,
+          transform 0.22s $ease-out,
+          box-shadow 0.22s ease;
+
+        .emotion-name {
+          margin-top: 8px;
+          font-size: 0.8rem;
+          color: #c8bcb0;
+          white-space: nowrap;
+        }
+
+        &:hover {
+          border-color: rgba(249,115,22,0.4);
+          box-shadow: 0 8px 20px rgba(249, 115, 22, 0.12);
+          transform: translateY(-2px);
+        }
+
+        &.selected {
+          border-color: $orange;
+          background: rgba(249,115,22,0.14);
+          transform: translateY(-4px);
+          box-shadow: 0 10px 24px rgba(249, 115, 22, 0.2);
+        }
+      }
+    }
+
+    /* ── detail form ── */
+    .detail-form {
+      .form-label {
+        margin: 12px 0 6px;
+        font-size: 0.875rem;
         font-weight: 600;
-        color: #374151;
+        color: #c8bcb0;
       }
-      .section {
-        margin-bottom: 20px;
-        p {
-          font-size: 15px;
-          color: #6b7280;
-          margin-bottom: 15px;
-        }
-      }
-      .emotion-grid {
+
+      .form-group { margin-bottom: 16px; }
+
+      .life-indicators {
         display: flex;
+        gap: 20px;
         flex-wrap: wrap;
-        gap: 10px;
-        .emotion-card {
-          padding: 15px;
-          border: 2px solid #e5e7eb;
-          border-radius: 15px;
-          text-align: center;
-          cursor: pointer;
-          background: #f9fafb;
-          transition:
-            border-color 0.22s ease,
-            background 0.22s ease,
-            transform 0.22s var(--mh-ease-out, ease-out),
-            box-shadow 0.22s ease;
-          .emotion-name {
-            margin-top: 10px;
-            padding: 0 75px;
-            color: #374151;
-          }
-          &:hover {
-            border-color: #fed7aa;
-            box-shadow: 0 8px 20px rgba(234, 88, 12, 0.12);
-            transform: translateY(-2px);
-          }
-          &.selected {
-            border-color: #ea580c;
-            background: #fff7ed;
-            transform: translateY(-4px);
-            box-shadow: 0 10px 24px rgba(234, 88, 12, 0.18);
-          }
-        }
+        .indicator-group { flex: 1 1 160px; }
       }
-      .detail-form {
-        .form-label {
-          margin: 10px 0;
-          color: #374151;
-        }
-        .life-indicators {
-          display: flex;
-          gap: 20px;
-          .indicator-group {
-            flex: 1;
-          }
-        }
-        .action-buttons {
-          margin-top: 40px;
-        }
+
+      .action-buttons {
+        margin-top: 32px;
+        display: flex;
+        gap: 12px;
       }
     }
   }
 }
 
+@media (max-width: 600px) {
+  .emotionDiary-container .diary-card .emotion-grid .emotion-card {
+    padding: 10px 12px;
+    min-width: 68px;
+  }
+  .emotionDiary-container .diary-card .detail-form .life-indicators {
+    flex-direction: column;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .emotionDiary-container .header-section {
-    animation: none;
-  }
-
-  .emotionDiary-container .header-section .header-content {
-    animation: none;
-  }
-
-  .emotionDiary-container .diary-card:hover {
-    transform: none;
-  }
-
+  .emotionDiary-container .header-section { animation: none; }
+  .emotionDiary-container .header-section .header-content { animation: none; }
+  .emotionDiary-container .diary-card:hover { transform: none; }
   .emotionDiary-container .emotion-grid .emotion-card:hover,
-  .emotionDiary-container .emotion-grid .emotion-card.selected {
-    transform: none;
-  }
+  .emotionDiary-container .emotion-grid .emotion-card.selected { transform: none; }
 }
 </style>

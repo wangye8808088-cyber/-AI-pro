@@ -61,15 +61,12 @@ const selectMenu = (key) => {
 .menu-style {
   height: 100%;
   border-right: none;
-  background: linear-gradient(
-    180deg,
-    var(--hs-cream, #fffbf7) 0%,
-    #fffdfb 100%
-  ) !important;
+  background: var(--hs-cream-mid, #231f1b) !important;
 
   :deep(.el-menu-item) {
     margin: 4px 8px;
     border-radius: 14px;
+    color: var(--hs-text-muted, #8a7a6c);
     transition:
       background 0.22s ease,
       color 0.22s ease,
@@ -78,16 +75,17 @@ const selectMenu = (key) => {
 
   :deep(.el-menu-item:hover) {
     transform: translateX(4px);
-    background: rgba(234, 88, 12, 0.08) !important;
+    background: rgba(249, 115, 22, 0.10) !important;
+    color: var(--hs-text, #ede8e1) !important;
   }
 
   :deep(.el-menu-item.is-active) {
     background: linear-gradient(
       90deg,
-      rgba(234, 88, 12, 0.14),
-      rgba(251, 146, 60, 0.06)
+      rgba(249, 115, 22, 0.18),
+      rgba(249, 115, 22, 0.06)
     ) !important;
-    color: var(--hs-orange-deep, #c2410c) !important;
+    color: var(--hs-orange, #f97316) !important;
     font-weight: 600;
   }
 
@@ -96,18 +94,18 @@ const selectMenu = (key) => {
     align-items: center;
     justify-content: center;
     padding: 10px 0;
-    background-color: rgba(255, 251, 247, 0.95);
-    border-bottom: 1px solid rgba(254, 215, 170, 0.5);
+    background-color: var(--hs-cream-mid, #231f1b);
+    border-bottom: 1px solid var(--hs-border, #38322b);
     .info-card {
       .brand-title {
         font-size: 20px;
         font-weight: bold;
         margin-bottom: 5px;
-        color: var(--hs-text, #292524);
+        color: var(--hs-text, #ede8e1);
       }
       .brand-subtitle {
         font-size: 14px;
-        color: var(--hs-text-muted, #78716c);
+        color: var(--hs-text-muted, #8a7a6c);
       }
     }
   }

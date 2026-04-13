@@ -183,12 +183,7 @@ const iconUrl = new URL("@/assets/images/robot-fill.png", import.meta.url).href;
     min-width: 0;
     height: 100vh;
     padding: 32px 20px;
-    background: linear-gradient(
-      180deg,
-      var(--hs-cream, #fffbf7) 0%,
-      #ffffff 45%,
-      var(--hs-peach, #ffedd5) 100%
-    );
+    background: var(--hs-cream, #1c1814);
   }
 }
 

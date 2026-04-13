@@ -516,80 +516,133 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
+$ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
 .dashboard-container {
+  /* ── stat cards ── */
+  :deep(.el-card) {
+    border: 1.5px solid #38322b;
+    border-radius: 16px;
+    background: #231f1b;
+    transition: transform 0.26s $ease-out, box-shadow 0.26s ease, border-color 0.22s ease;
+    animation: card-in 0.55s $ease-out both;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(249, 115, 22, 0.12);
+      border-color: rgba(249,115,22,0.4);
+    }
+  }
+
+  :deep(.el-col:nth-child(1) .el-card) { animation-delay: 0.05s; }
+  :deep(.el-col:nth-child(2) .el-card) { animation-delay: 0.12s; }
+  :deep(.el-col:nth-child(3) .el-card) { animation-delay: 0.19s; }
+  :deep(.el-col:nth-child(4) .el-card) { animation-delay: 0.26s; }
+
+  @keyframes card-in {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
   .card-content {
     display: flex;
     align-items: center;
+    gap: 14px;
+    padding: 4px 0;
+
     .avatar {
-      margin-right: 12px;
-      width: 60px;
-      height: 60px;
-      border-radius: 12px;
+      flex-shrink: 0;
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      &.users {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      }
-      &.like {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      }
-      &.comments {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-      }
-      &.smile {
-        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-      }
+
+      &.users    { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+      &.like     { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+      &.comments { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+      &.smile    { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
     }
+
     .info {
+      flex: 1;
+      min-width: 0;
+
       .title {
-        font-size: 14px;
-        color: #7f8c8d;
+        font-size: 0.8rem;
+        color: #6b5e54;
+        font-weight: 500;
         margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
       }
-      .value {
-        font-size: 24px;
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 4px;
+
+      /* 修复：模板用 .number，此处统一为 .number */
+      .number {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #ede8e1;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        margin-bottom: 6px;
       }
+
       .subtitle-title {
-        font-size: 12px;
-        color: #95a5a6;
+        font-size: 0.75rem;
+        color: #6b5e54;
       }
     }
   }
-  .chart-content {
-    padding: 20px;
-    height: 300px;
-    position: relative;
 
-    canvas {
-      width: 100% !important;
-      height: 100% !important;
+  /* ── card header ── */
+  :deep(.el-card__header) {
+    border-bottom: 1px solid #38322b;
+    padding: 14px 20px;
+  }
+
+  .card-header {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #ede8e1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    &::before {
+      content: '';
+      display: inline-block;
+      width: 4px; height: 14px;
+      background: #f97316;
+      border-radius: 2px;
     }
+  }
+
+  /* ── charts ── */
+  .chart-content {
+    padding: 12px;
+    position: relative;
+    canvas { width: 100% !important; }
 
     .consultation-stats {
       display: flex;
       justify-content: space-around;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid #38322b;
 
       .stat-item {
         text-align: center;
-
-        .stat-label {
-          font-size: 12px;
-          color: #7f8c8d;
-          margin-bottom: 4px;
-        }
-
-        .stat-value {
-          font-size: 18px;
-          font-weight: 600;
-          color: #2c3e50;
-        }
+        .stat-label { font-size: 0.75rem; color: #6b5e54; margin-bottom: 4px; }
+        .stat-value { font-size: 1.2rem; font-weight: 700; color: #ede8e1; }
       }
     }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-container :deep(.el-card) {
+    animation: none;
+    &:hover { transform: none; }
   }
 }
 </style>

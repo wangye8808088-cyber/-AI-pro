@@ -154,12 +154,7 @@ watch(
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(
-    180deg,
-    var(--hs-cream, #fffbf7) 0%,
-    #ffffff 40%,
-    var(--hs-cream-mid, #fef3e8) 100%
-  );
+  background: var(--hs-cream, #1c1814);
 
   .navbar-container {
     position: sticky;
@@ -174,12 +169,12 @@ watch(
     align-items: center;
     justify-content: space-between;
     gap: 24px;
-    background: rgba(255, 251, 247, 0.96);
-    backdrop-filter: blur(14px);
+    background: rgba(26, 22, 18, 0.94);
+    backdrop-filter: blur(16px);
     border: none;
-    border-bottom: 1px solid rgba(254, 215, 170, 0.5);
+    border-bottom: 1px solid rgba(56, 50, 43, 0.8);
     border-radius: 0;
-    box-shadow: 0 1px 0 rgba(41, 37, 36, 0.04);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
     animation: nav-in 0.65s var(--mh-ease-out, ease-out) both;
 
     @keyframes nav-in {
@@ -212,7 +207,7 @@ watch(
         font-size: 1.25rem;
         font-weight: 700;
         letter-spacing: -0.02em;
-        color: var(--mh-slate-900, #0f172a);
+        color: var(--hs-text, #ede8e1);
       }
     }
 
@@ -224,7 +219,7 @@ watch(
 
       .nav-link {
         position: relative;
-        color: var(--mh-slate-600, #475569);
+        color: var(--hs-text-muted, #8a7a6c);
         font-size: 15px;
         font-weight: 500;
         padding: 6px 0;
@@ -272,10 +267,10 @@ watch(
       }
 
       .logout-btn {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
+        background: #2a2520;
+        border: 1px solid #38322b;
         border-radius: 999px;
-        color: var(--mh-slate-600, #475569);
+        color: var(--hs-text-muted, #8a7a6c);
         font-size: 14px;
         font-weight: 500;
         padding: 8px 18px;
@@ -288,10 +283,10 @@ watch(
       }
 
       .logout-btn:hover {
-        background: #fff;
-        border-color: var(--mh-teal-400, #5eb3a2);
-        color: var(--mh-teal-600, #3d8a7a);
-        box-shadow: 0 4px 14px rgba(61, 138, 122, 0.15);
+        background: rgba(249, 115, 22, 0.12);
+        border-color: rgba(249, 115, 22, 0.4);
+        color: #f97316;
+        box-shadow: 0 4px 14px rgba(249, 115, 22, 0.1);
       }
     }
   }

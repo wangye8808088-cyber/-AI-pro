@@ -68,6 +68,9 @@
           >
         </el-form-item>
       </el-form>
+      <div class="footer">
+        <p>已有账户？<router-link to="/auth/login">去登录</router-link></p>
+      </div>
     </div>
   </div>
 </template>
@@ -192,8 +195,17 @@ const submitForm = (formEl) => {
       width: 100%;
     }
     .footer {
-      padding: 30px;
+      padding: 20px 0 10px;
       text-align: center;
+      font-size: 14px;
+      color: var(--hs-text-muted, #78716c);
+
+      a {
+        color: var(--hs-orange, #ea580c);
+        font-weight: 600;
+        transition: color 0.2s ease;
+        &:hover { color: var(--hs-orange-deep, #c2410c); }
+      }
     }
   }
 }

@@ -136,12 +136,12 @@ onMounted(() => {
 <style scoped lang="scss">
 .session-title {
   font-weight: 500;
-  color: #333;
+  color: #ede8e1;
   margin-bottom: 4px;
 }
 .session-preview {
   font-size: 13px;
-  color: #666;
+  color: #8a7a6c;
   margin-bottom: 4px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -155,9 +155,9 @@ onMounted(() => {
   .detail-header {
     margin-bottom: 20px;
     padding: 16px;
-    background: #f8f9fa;
+    background: #2a2520;
     border-radius: 8px;
-    border: 1px solid #e9ecef;
+    border: 1px solid #38322b;
   }
 
   .detail-row {
@@ -169,13 +169,13 @@ onMounted(() => {
     }
     .detail-label {
       font-weight: 500;
-      color: #495057;
+      color: #c8bcb0;
       min-width: 80px;
       margin-right: 8px;
     }
 
     .detail-value {
-      color: #333;
+      color: #ede8e1;
     }
   }
 }
@@ -185,7 +185,7 @@ onMounted(() => {
     margin-bottom: 16px;
     h4 {
       margin: 0;
-      color: #333;
+      color: #ede8e1;
       font-size: 16px;
       font-weight: 500;
     }
@@ -193,25 +193,27 @@ onMounted(() => {
   .messages-list {
     max-height: 400px;
     overflow-y: auto;
-    border: 1px solid #e9ecef;
+    border: 1px solid #38322b;
     border-radius: 8px;
     padding: 16px;
-    background: #fff;
+    background: #1c1814;
     .message-item {
       margin-bottom: 12px;
       padding: 12px;
       border-radius: 8px;
-      background: #f8f9fa;
-      border: 1px solid #e9ecef;
+      background: #2a2520;
+      border: 1px solid #38322b;
       :last-child {
         margin-bottom: 0;
       }
       &.user-message {
-        background: #e8f4fd;
+        background: rgba(249,115,22,0.10);
+        border-color: rgba(249,115,22,0.25);
       }
 
       &.ai-message {
-        background: #f0f9f0;
+        background: rgba(59,130,246,0.08);
+        border-color: rgba(59,130,246,0.2);
       }
     }
     .message-header {
@@ -219,21 +221,21 @@ onMounted(() => {
       justify-content: space-between;
       align-items: center;
       margin-bottom: 8px;
-      .sender {
+        .sender {
         font-weight: 500;
-        color: #333;
+        color: #ede8e1;
         display: flex;
         align-items: center;
         gap: 4px;
       }
 
-      .time {
-        font-size: 12px;
-        color: #999;
-      }
+        .time {
+          font-size: 12px;
+          color: #6b5e54;
+        }
 
-      .message-content {
-        color: #333;
+        .message-content {
+          color: #c8bcb0;
         line-height: 1.6;
         white-space: pre-wrap;
         margin-top: 8px;

@@ -73,9 +73,9 @@ const handleCollapse = () => {
   align-items: center;
   justify-content: space-between;
   padding: 0 15px;
-  background: var(--hs-cream, #fffbf7);
-  box-shadow: 0 1px 0 rgba(234, 88, 12, 0.06);
-  border-bottom: 1px solid rgba(254, 215, 170, 0.4);
+  background: var(--hs-cream-mid, #231f1b);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--hs-border, #38322b);
   .flex-box {
     display: flex;
     align-items: center;

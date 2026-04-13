@@ -1,273 +1,290 @@
-<template>
-  <div class="consultation-container">
-    <div class="sidebar">
-      <!-- AI助手信息 -->
-      <div class="ai-assistant-info">
-        <div class="breathing-circle">
-          <el-image
-            :src="iconUrl"
-            style="width: 25px; height: 25px"
-            alt="AI助手"
-          />
-        </div>
-        <h3 class="assistant-name">宁渡AI助手</h3>
-        <div class="online-status">
-          <div class="status-dot"></div>
-          在线服务中
-        </div>
-      </div>
-      <!-- 情绪花园 -->
-      <div class="emotion-garden">
-        <div class="garden-header">
-          <div class="garden-title">情绪花园</div>
-        </div>
-        <div class="emotion-info">
-          <div class="emotion-name">中性</div>
-          <div class="emotion-score">50</div>
-        </div>
-        <div class="warm-tips">
-          <div class="emotion-status-text">
-            <span class="status-label">今天感觉</span>
-            <span class="status-emotion">{{
-              currentEmotion.isNegative ? "需要关注" : "很不错"
-            }}</span>
+﻿<template>
+  <div class="ds-layout" :class="{ 'sb-collapsed': sidebarCollapsed }">
+
+    <!-- ════════════ SIDEBAR ════════════ -->
+    <aside class="ds-sidebar">
+
+      <!-- sidebar header -->
+      <div class="sb-head">
+        <div class="sb-brand">
+          <div class="sb-avatar">
+            <el-image :src="iconUrl" style="width: 22px; height: 22px" alt="logo" />
           </div>
-          <div class="emotion-intensity">
-            <span class="intensity-dots">
-              <span
-                v-for="dot in 3"
-                :key="dot"
-                class="dot"
-                :class="{
-                  active: getIntensityClass(currentEmotion.emotionScore) >= dot,
-                }"
-              ></span>
+          <span class="sb-brand-name">宁渡 AI</span>
+        </div>
+        <button
+          class="sb-toggle"
+          @click="sidebarCollapsed = !sidebarCollapsed"
+          :title="sidebarCollapsed ? '展开侧栏' : '折叠侧栏'"
+          aria-label="折叠侧栏"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- new chat btn -->
+      <button
+        class="sb-new-btn"
+        @click="createNewFrontendSession"
+        title="新对话"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        <span class="sb-btn-text">新对话</span>
+      </button>
+
+      <!-- session list -->
+      <div class="sb-sessions">
+        <div class="sb-section-label">最近对话</div>
+        <div
+          v-for="session in sessionList"
+          :key="session.id"
+          class="sb-session-item"
+          :class="{ active: currentSession?.sessionId === 'session_' + session.id }"
+          @click="handleSessionClick(session)"
+          :title="session.sessionTitle"
+        >
+          <svg class="sb-session-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span class="sb-session-title">{{ session.sessionTitle }}</span>
+          <button
+            class="sb-session-del"
+            @click.stop="handleDeleteSession(session.id)"
+            title="删除"
+            aria-label="删除会话"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+            </svg>
+          </button>
+        </div>
+        <div class="sb-empty" v-if="sessionList.length === 0">暂无历史对话</div>
+      </div>
+
+      <!-- emotion bottom card -->
+      <div class="sb-emotion-card">
+        <div class="ec-row">
+          <div
+            class="ec-score"
+            :class="{
+              'ec-score--warn': currentEmotion.isNegative,
+            }"
+          >{{ currentEmotion.emotionScore }}</div>
+          <div class="ec-info">
+            <span class="ec-label">情绪指数</span>
+            <span class="ec-status" :class="{ warn: currentEmotion.isNegative }">
+              {{ currentEmotion.isNegative ? "需要关注" : "状态良好" }}
             </span>
-            <span class="intensity-text">
-              {{ getRiskTest(currentEmotion.riskLevel) }}
-            </span>
           </div>
-          <!-- 温暖建议卡片 -->
-          <div class="warm-suggestion" v-if="currentEmotion.suggestion">
-            <div class="suggestion-icon" aria-hidden="true">
-              <el-icon :size="22"><StarFilled /></el-icon>
-            </div>
-            <div class="suggestion-content">
-              <div class="suggestion-title">给你的小建议</div>
-              <div class="suggestion-text">{{ currentEmotion.suggestion }}</div>
-            </div>
+          <div class="ec-dots">
+            <span
+              v-for="dot in 3"
+              :key="dot"
+              class="ec-dot"
+              :class="{ active: getIntensityClass(currentEmotion.emotionScore) >= dot }"
+            ></span>
           </div>
-          <!-- 治愈行动 -->
-          <div
-            class="healing-actions"
-            v-if="currentEmotion.improvementSuggestions.length > 0"
-          >
-            <div class="actions-title">治愈小行动</div>
-            <div class="actions-list">
-              <div
-                v-for="action in currentEmotion.improvementSuggestions"
-                :key="action"
-                class="action-item"
-              >
-                <div class="action-icon" aria-hidden="true">
-                  <el-icon :size="16"><MagicStick /></el-icon>
-                </div>
-                <div class="action-text">{{ action }}</div>
-              </div>
-            </div>
-          </div>
-          <!-- 风险提示 -->
-          <div
-            class="risk-notice"
-            v-if="currentEmotion.isNegative && currentEmotion.riskLevel > 1"
-          >
-            <div class="notice-icon" aria-hidden="true">
-              <el-icon :size="22"><ChatRound /></el-icon>
-            </div>
-            <div class="notice-content">
-              <div class="notice-title">温馨提示</div>
-              <div class="notice-text">
-                {{ currentEmotion.riskDescription }}
-              </div>
-            </div>
-          </div>
+        </div>
+        <p class="ec-suggestion" v-if="currentEmotion.suggestion">
+          {{ currentEmotion.suggestion }}
+        </p>
+        <div
+          class="ec-risk"
+          v-if="currentEmotion.isNegative && currentEmotion.riskLevel > 1"
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          {{ currentEmotion.riskDescription }}
         </div>
       </div>
-      <!-- 会话列表 -->
-      <div class="session-history">
-        <h4 class="section-title">会话列表</h4>
-        <div class="session-list">
-          <div
-            v-for="session in sessionList"
-            :key="session.id"
-            @click="handleSessionClick(session)"
-            class="session-item"
+    </aside>
+
+    <!-- ════════════ MAIN CHAT ════════════ -->
+    <main class="ds-main">
+
+      <!-- ─── Dappled Light (decorative, aria-hidden) ─── -->
+      <div class="dl-root" aria-hidden="true">
+        <!-- SVG filter: organic wind turbulence for leaf movement -->
+        <svg class="dl-defs" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="dl-wind" x="-30%" y="-30%" width="160%" height="160%"
+              color-interpolation-filters="linearRGB">
+              <feTurbulence type="fractalNoise" numOctaves="3" seed="4" result="turb">
+                <animate attributeName="baseFrequency"
+                  dur="22s" calcMode="spline"
+                  values="0.009 0.006;0.017 0.013;0.007 0.004;0.014 0.010;0.009 0.006"
+                  keyTimes="0;0.25;0.5;0.75;1"
+                  keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
+                  repeatCount="indefinite"/>
+              </feTurbulence>
+              <feDisplacementMap in="SourceGraphic" in2="turb"
+                xChannelSelector="R" yChannelSelector="G">
+                <animate attributeName="scale"
+                  dur="22s" calcMode="spline"
+                  values="35;65;90;52;35"
+                  keyTimes="0;0.25;0.5;0.75;1"
+                  keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
+                  repeatCount="indefinite"/>
+              </feDisplacementMap>
+            </filter>
+          </defs>
+        </svg>
+
+        <!-- Layer 1 : organic light blobs (dappled leaf patches) -->
+        <div class="dl-leaves"></div>
+
+        <!-- Layer 2 : diagonal warm light beams -->
+        <div class="dl-beams-wrap">
+          <div class="dl-beams"></div>
+        </div>
+
+        <!-- Layer 3 : corner ambient glow -->
+        <div class="dl-glow"></div>
+      </div>
+      <!-- ─── /Dappled Light ─── -->
+
+      <!-- top bar -->
+      <div class="ds-topbar">
+        <!-- 折叠时显示展开按钮，展开时占位保持三列平衡 -->
+        <div class="ds-topbar-left">
+          <button
+            v-if="sidebarCollapsed"
+            class="ds-topbar-toggle"
+            @click="sidebarCollapsed = false"
+            title="展开侧栏"
+            aria-label="展开侧栏"
           >
-            <div class="session-info">
-              <div class="session-title">
-                <span>{{ session.sessionTitle }}</span>
-                <div class="session-meta">
-                  <span class="session-time">{{ session.startedAt }}</span>
-                </div>
-                <div class="session-preview">
-                  {{ session.lastMessageContent }}
-                </div>
-                <div class="session-stats">
-                  <span>
-                    <el-icon>
-                      <ChatRound />
-                    </el-icon>
-                    {{ session.messageCount || 0 }}
-                  </span>
-                  <span>
-                    <el-icon>
-                      <Clock />
-                    </el-icon>
-                    {{ session.durationMinutes || 0 }} 分钟
-                  </span>
-                </div>
-              </div>
-              <div class="session-actions">
-                <el-button
-                  text
-                  type="danger"
-                  size="small"
-                  @click="handleDeleteSession(session.id)"
-                >
-                  <el-icon>
-                    <DeleteFilled />
-                  </el-icon>
-                </el-button>
-              </div>
-            </div>
-          </div>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <span class="ds-session-title">
+          {{ currentSession?.sessionTitle || "新对话" }}
+        </span>
+
+        <div class="ds-topbar-right">
+          <button
+            class="ds-new-chat"
+            @click="createNewFrontendSession"
+            title="新建会话"
+            aria-label="新建会话"
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            </svg>
+            新对话
+          </button>
         </div>
       </div>
-    </div>
-    <div class="chat-main">
-      <div class="chat-header">
-        <div class="header-left">
-          <div class="chat-avatar">
-            <el-image :src="iconUrl1" style="width: 30px; height: 30px" />
+
+      <!-- messages -->
+      <div class="ds-messages" ref="messagesRef">
+
+        <!-- welcome screen -->
+        <div class="ds-welcome" v-if="messages.length === 0">
+          <div class="dw-avatar">
+            <el-image :src="iconUrl" style="width: 52px; height: 52px" alt="宁渡" />
           </div>
-          <div class="chat-info">
-            <h2>宁渡AI助手</h2>
-            <p>您贴心的AI心理健康助手</p>
-          </div>
-        </div>
-        <el-button circle @click="createNewFrontendSession" title="新建会话">
-          <el-icon>
-            <Plus />
-          </el-icon>
-        </el-button>
-      </div>
-      <!-- 聊天消息取区域 -->
-      <div class="chat-messages">
-        <!-- 欢迎用语 -->
-        <div class="message-item ai-message" v-if="messages.length === 0">
-          <div class="message-avatar">
-            <el-image :src="iconUrl" style="width: 18px; height: 18px" />
-          </div>
-          <div class="message-content">
-            <div class="message-bubble">
-              <p>
-                你好！我是小暖，您的AI心理健康助手。很高兴陪伴您，为您提供温暖的心理支持。请告诉我，今天您感觉怎么样？有什么想要分享的吗？
-              </p>
-            </div>
-            <div class="message-item">刚刚</div>
+          <h2 class="dw-title">你好，我是宁渡</h2>
+          <p class="dw-sub">
+            <span class="dw-typewriter">{{ typingText }}</span><span
+              class="dw-cursor"
+              :class="{ 'dw-cursor--blink': !isTypingActive }"
+              aria-hidden="true"
+            >|</span>
+          </p>
+          <div class="dw-chips">
+            <button class="dw-chip" @click="userMessage = '我最近压力有点大，想聊聊'">压力有点大</button>
+            <button class="dw-chip" @click="userMessage = '我睡眠不太好，怎么办？'">睡眠不好</button>
+            <button class="dw-chip" @click="userMessage = '我感觉很焦虑，想倾诉一下'">感到焦虑</button>
           </div>
         </div>
-        <!-- 消息列表 -->
+
+        <!-- message rows -->
         <div
           v-for="msg in messages"
           :key="msg.id"
-          class="message-item"
-          :class="msg.senderType === 1 ? 'user-message' : 'ai-message'"
+          class="ds-msg-row"
+          :class="msg.senderType === 1 ? 'row-user' : 'row-ai'"
         >
-          <div class="message-avatar">
-            <el-image
-              v-if="msg.senderType === 1"
-              :src="iconUrl2"
-              style="width: 18px; height: 18px"
-            />
-            <el-image
-              v-if="msg.senderType === 2"
-              :src="iconUrl"
-              style="width: 18px; height: 18px"
-            />
+          <!-- ai avatar -->
+          <div class="ds-msg-avatar" v-if="msg.senderType === 2">
+            <el-image :src="iconUrl" style="width: 20px; height: 20px" alt="AI" />
           </div>
-          <div class="message-content">
-            <div class="message-bubble">
-              <!-- AI正在思考中 -->
-              <div
-                v-if="msg.senderType === 2 && isAiTying && !msg.content"
-                class="typing-indicator"
-              >
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
+
+          <div class="ds-msg-body">
+            <div class="ds-msg-bubble">
+              <!-- typing indicator -->
+              <div v-if="msg.senderType === 2 && isAiTying && !msg.content" class="ds-typing">
+                <span></span><span></span><span></span>
               </div>
-              <!-- AI错误提示 -->
-              <div v-else-if="msg.isError" class="error-message">
-                <p>{{ msg.content }}</p>
+              <!-- error -->
+              <div v-else-if="msg.isError" class="ds-msg-error">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                {{ msg.content }}
               </div>
-              <!-- AI正常返回消息 -->
+              <!-- ai markdown -->
               <MarkdownRenderer
                 v-else-if="msg.senderType === 2 && !msg.isError"
                 :content="msg.content"
                 :isAiMessage="true"
               />
-              <p
-                v-else-if="msg.content"
-                v-html="formatMessageCount(msg.content)"
-              ></p>
+              <!-- user text -->
+              <p v-else-if="msg.content" v-html="formatMessageCount(msg.content)"></p>
             </div>
-            <div class="message-time">
-              {{
-                msg.senderType === 2 && isAiTying
-                  ? "正在输入中..."
-                  : msg.createAt
-              }}
+            <div class="ds-msg-time">
+              {{ msg.senderType === 2 && isAiTying ? "正在输入…" : msg.createAt }}
             </div>
+          </div>
+
+          <!-- user avatar -->
+          <div class="ds-msg-avatar ds-msg-avatar--user" v-if="msg.senderType === 1">
+            <el-image :src="iconUrl2" style="width: 20px; height: 20px" alt="用户" />
           </div>
         </div>
       </div>
-      <!-- 消息输入区域 -->
-      <div class="chat-input">
-        <div class="input-container">
+
+      <!-- input -->
+      <div class="ds-input-area">
+        <div class="ds-input-card">
           <el-input
             v-model="userMessage"
-            placeholder="请输入您想要分享的内容..."
+            placeholder="和宁渡说说心里话…"
             type="textarea"
-            :rows="3"
+            :autosize="{ minRows: 1, maxRows: 6 }"
             :disabled="isAiTying"
             @keydown.enter="handleKeyDown"
-            class="message-input"
-            clearable
+            class="ds-textarea"
+            resize="none"
           />
-          <div class="input-footer">
-            <span>按住Enter发送，Shift+Enter换行</span>
-            <span>{{ userMessage.length }}/500</span>
-          </div>
+          <button
+            class="ds-send-btn"
+            :class="{ active: userMessage.trim() && userMessage.length <= 500 }"
+            :disabled="!userMessage.trim() || userMessage.length > 500 || isAiTying"
+            @click="sendMessage"
+            aria-label="发送"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
         </div>
-        <el-button
-          :disabled="!userMessage.trim() || userMessage.length > 500"
-          type="primary"
-          class="send-btn"
-          @click="sendMessage"
-        >
-          <el-icon>
-            <Promotion />
-          </el-icon>
-        </el-button>
+        <div class="ds-input-hint">
+          <span>Enter 发送 · Shift+Enter 换行</span>
+          <span :class="{ 'hint-warn': userMessage.length > 450 }">{{ userMessage.length }}/500</span>
+        </div>
       </div>
-    </div>
+    </main>
   </div>
 </template>
 
 <script setup>
-import { Clock, Promotion } from "@element-plus/icons-vue";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import { ElMessage } from "element-plus";
 import { DEFAULT_LLM_MODEL } from "@/config/llmModels";
 import {
@@ -279,6 +296,80 @@ import {
 } from "@/api/frontend";
 import MarkdownRenderer from "@/components/MarkdownRenderer.vue";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
+
+// ── sidebar & scroll ────────────────────────────────────
+const sidebarCollapsed = ref(false);
+const messagesRef = ref(null);
+
+const scrollToBottom = () => {
+  nextTick(() => {
+    if (messagesRef.value) {
+      messagesRef.value.scrollTop = messagesRef.value.scrollHeight;
+    }
+  });
+};
+
+// ── 欢迎页打字机效果 ──────────────────────────────────────
+const typingPhrases = [
+  "您贴心的 AI 心理健康助手，今天感觉怎么样？",
+  "倾诉烦恼，让内心更轻盈一点",
+  "睡眠不好、焦虑、压力大？我来陪你",
+  "无论何时，这里都是你的安全空间",
+  "用温暖与科学，守护你的心理健康",
+];
+
+const typingText = ref("");
+const isTypingActive = ref(true);
+let _typingTimer = null;
+
+const startTypewriter = () => {
+  let phraseIdx = 0;
+
+  const typeOut = () => {
+    const phrase = typingPhrases[phraseIdx];
+    let i = 0;
+    isTypingActive.value = true;
+
+    const tick = () => {
+      i++;
+      typingText.value = phrase.slice(0, i);
+      if (i < phrase.length) {
+        _typingTimer = setTimeout(tick, 75);
+      } else {
+        // 全部打完 → 停顿 3 秒后删除
+        isTypingActive.value = false;
+        _typingTimer = setTimeout(deleteOut, 3000);
+      }
+    };
+    tick();
+  };
+
+  const deleteOut = () => {
+    const phrase = typingPhrases[phraseIdx];
+    let i = phrase.length;
+    isTypingActive.value = true;
+
+    const tick = () => {
+      i--;
+      typingText.value = phrase.slice(0, i);
+      if (i > 0) {
+        _typingTimer = setTimeout(tick, 35);
+      } else {
+        // 删完 → 切换到下一条
+        phraseIdx = (phraseIdx + 1) % typingPhrases.length;
+        isTypingActive.value = false;
+        _typingTimer = setTimeout(typeOut, 400);
+      }
+    };
+    tick();
+  };
+
+  typeOut();
+};
+
+onUnmounted(() => {
+  clearTimeout(_typingTimer);
+});
 
 const iconUrl = new URL("@/assets/images/robot-fill.png", import.meta.url).href;
 const iconUrl1 = new URL("@/assets/images/like.png", import.meta.url).href;
@@ -395,6 +486,7 @@ const sendMessage = () => {
       content: message,
       createAt: new Date().toISOString(),
     });
+    scrollToBottom();
     startAIResopnse(currentSession.value.sessionId, message);
   }
 };
@@ -498,6 +590,7 @@ const startAIResopnse = (sessionId, userMessage) => {
       const ok = String(payload.code) === "200";
       if (ok && payload.data && payload.data.content) {
         aiMessage.content += payload.data.content;
+        scrollToBottom();
       } else if (!ok) {
         // 错误回复显示
         handleError(payload.message || "AI助手回复失败，请稍后重试");
@@ -561,662 +654,725 @@ const formatMessageCount = (message) => {
 };
 
 onMounted(() => {
-  // 初始化时获取会话列表
   getSessionPage();
-  // 初始化时创建一个新的会话
   createNewFrontendSession();
+  startTypewriter();
 });
 </script>
 
 <style scoped lang="scss">
-.consultation-container {
-  margin: 0 auto;
-  width: 1200px;
+/* ── tokens ────────────────────────────────────── */
+$sb-w: 260px;
+$orange: #f97316;
+$orange-dark: #c2410c;
+$orange-light: rgba(249, 115, 22, 0.35);
+$bg: #1c1814;
+$sidebar-bg: #231f1b;
+$border: #38322b;
+$text: #ede8e1;
+$muted: #8a7a6c;
+$ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+/* ── root layout ────────────────────────────────── */
+.ds-layout {
   display: flex;
+  width: 100%;
+  height: calc(100vh - 74px);
+  overflow: hidden;
+  background: $bg;
+  position: relative;
+}
+
+/* ════════════════════════════════════════════════
+   SIDEBAR
+   ════════════════════════════════════════════════ */
+.ds-sidebar {
+  width: $sb-w;
+  flex-shrink: 0;
+  height: 100%;
+  background: $sidebar-bg;
+  border-right: 1px solid $border;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width 0.3s $ease, opacity 0.3s ease;
+}
+
+.ds-layout.sb-collapsed .ds-sidebar {
+  width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── sidebar header ── */
+.sb-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 14px 12px;
+  flex-shrink: 0;
+}
+.sb-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.sb-avatar {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #fb923c, #f59e0b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(251, 146, 60, 0.3);
+}
+.sb-brand-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: $text;
+  letter-spacing: -0.02em;
+}
+.sb-toggle {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: $muted;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.18s ease, color 0.18s ease;
+  &:hover { background: #2e2822; color: $text; }
+}
+
+/* ── new chat btn ── */
+.sb-new-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 12px 12px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  border: 1.5px solid $border;
+  background: #2a2520;
+  color: $text;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  flex-shrink: 0;
+  &:hover {
+    border-color: rgba($orange, 0.5);
+    background: rgba($orange, 0.1);
+    box-shadow: 0 4px 14px rgba($orange, 0.08);
+  }
+  svg { color: $orange; flex-shrink: 0; }
+}
+.sb-btn-text { white-space: nowrap; }
+
+/* ── session list ── */
+.sb-sessions {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba($orange, 0.2) transparent;
+}
+.sb-section-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 6px 8px 4px;
+}
+.sb-session-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.18s ease;
+  &:hover {
+    background: #2e2822;
+    .sb-session-del { opacity: 1; }
+  }
+  &.active { background: rgba($orange, 0.12); }
+}
+.sb-session-icon { flex-shrink: 0; color: $muted; }
+.sb-session-title {
+  flex: 1;
+  font-size: 0.84rem;
+  color: #c8bcb0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sb-session-del {
+  flex-shrink: 0;
+  opacity: 0;
+  width: 24px; height: 24px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #ef4444;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.18s ease, background 0.18s ease;
+  &:hover { background: rgba(239, 68, 68, 0.18); }
+}
+.sb-empty {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* ── emotion bottom card ── */
+.sb-emotion-card {
+  margin: 8px 12px 14px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, #2a2118, #2e2614);
+  border-radius: 12px;
+  border: 1px solid rgba(245, 158, 11, 0.22);
+  flex-shrink: 0;
+}
+.ec-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.ec-score {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #fb923c, #f59e0b);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  &.ec-score--warn { background: linear-gradient(135deg, #f87171, #ef4444); }
+}
+.ec-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ec-label { font-size: 0.72rem; color: #9ca3af; font-weight: 500; }
+.ec-status {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #d97706;
+  &.warn { color: #ef4444; }
+}
+.ec-dots {
+  display: flex;
+  gap: 3px;
+  .ec-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #3d3530;
+    transition: background 0.2s ease;
+    &.active { background: $orange; }
+  }
+}
+.ec-suggestion {
+  font-size: 0.78rem;
+  color: #7a6e65;
+  line-height: 1.5;
+  margin: 0;
+}
+.ec-risk {
+  margin-top: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: #e09840;
+  background: rgba(180, 83, 9, 0.18);
+  border-radius: 8px;
+  padding: 7px 10px;
+  svg { flex-shrink: 0; margin-top: 1px; }
+}
+
+/* ── expand button (sidebar collapsed) ── */
+
+/* ════════════════════════════════════════════════
+   MAIN AREA
+   ════════════════════════════════════════════════ */
+.ds-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: $bg;
+  position: relative; // needed for absolute dl-root
+}
+
+/* ════════════════════════════════════════════════
+   DAPPLED LIGHT  (jackyzha0/sunlit inspired)
+   — pure CSS + SVG, no JS, pointer-events: none
+   ════════════════════════════════════════════════ */
+.dl-root {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+  mix-blend-mode: screen; // screen works better on dark backgrounds
+  isolation: isolate;
+}
+.dl-defs {
+  position: absolute;
+  width: 0; height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+// ── Layer 1 : organic light patches (dappled leaves) ──────
+.dl-leaves {
+  position: absolute;
+  // extend beyond edges so displacement filter doesn't clip
+  inset: -15%;
+  width: 130%; height: 130%;
+  // Multiple overlapping radial blobs simulate leaf-filtered sunlight
+  background-image:
+    radial-gradient(ellipse 380px 320px at 88%  8%, rgba(255, 185, 60, 0.42) 0%, transparent 62%),
+    radial-gradient(ellipse 260px 190px at 58% 28%, rgba(255, 200, 80, 0.28) 0%, transparent 58%),
+    radial-gradient(ellipse 170px 260px at 97% 42%, rgba(255, 175, 55, 0.35) 0%, transparent 55%),
+    radial-gradient(ellipse 210px 150px at 72% 70%, rgba(255, 195, 72, 0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 140px 180px at 32% 62%, rgba(255, 185, 65, 0.18) 0%, transparent 58%),
+    radial-gradient(ellipse 100px 130px at 18% 85%, rgba(255, 170, 50, 0.14) 0%, transparent 65%);
+  filter: url(#dl-wind) blur(14px);
+  opacity: 0.9;
+  animation: dl-billow 20s ease-in-out infinite;
+
+  // Firefox: feDisplacementMap is CPU-heavy, disable the displacement filter
+  @-moz-document url-prefix() {
+    filter: blur(14px);
+  }
+}
+
+// ── Layer 2 : diagonal warm light beams ───────────────────
+.dl-beams-wrap {
+  position: absolute;
+  inset: 0;
+  top: -35%;
+  height: 175%;
+  animation: dl-sway 14s ease-in-out infinite;
+  transform-origin: top right;
+}
+.dl-beams {
+  width: 100%; height: 100%;
+  transform-origin: top right;
+  // matrix3d creates 3D perspective illusion (wall at an angle)
+  transform: matrix3d(
+    0.74, -0.055, 0, 0.00055,
+    0,    1,      0, 0,
+    0,    0,      1, 0,
+    0,    0,      0, 1
+  );
+  background: repeating-linear-gradient(
+    202deg,
+    transparent            0px,
+    transparent            80px,
+    rgba(255, 190, 60, 0.12) 80px,
+    rgba(255, 205, 78, 0.07) 160px
+  );
+  filter: blur(10px);
+}
+
+// ── Layer 3 : corner ambient glow ─────────────────────────
+.dl-glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 65% 50% at 92%  2%, rgba(255, 185, 55, 0.18) 0%, transparent 68%),
+    radial-gradient(ellipse 35% 25% at 100% 65%, rgba(255, 165, 45, 0.10) 0%, transparent 75%);
+}
+
+// ── Animations ────────────────────────────────────────────
+@keyframes dl-billow {
+  0%   { transform: perspective(1200px) rotateX(0deg)     rotateY(0deg)    scale(1);    }
+  20%  { transform: perspective(1200px) rotateX(0.7deg)   rotateY(2.2deg)  scale(1.03); }
+  47%  { transform: perspective(1200px) rotateX(-2.8deg)  rotateY(-1.6deg) scale(0.97); }
+  73%  { transform: perspective(1200px) rotateX(1.2deg)   rotateY(-0.9deg) scale(1.04); }
+  100% { transform: perspective(1200px) rotateX(0deg)     rotateY(0deg)    scale(1);    }
+}
+@keyframes dl-sway {
+  0%   { transform: rotate(-1.3deg);  }
+  28%  { transform: rotate(0.7deg);   }
+  60%  { transform: rotate(-0.5deg);  }
+  100% { transform: rotate(-1.3deg);  }
+}
+
+// ── Topbar / messages stay above light layer ──────────────
+.ds-topbar,
+.ds-messages,
+.ds-input-area {
+  position: relative;
+  z-index: 1;
+}
+
+// ── Accessibility ─────────────────────────────────────────
+@media (prefers-reduced-motion: reduce) {
+  .dl-leaves     { animation: none; }
+  .dl-beams-wrap { animation: none; }
+}
+@media (prefers-contrast: high) {
+  .dl-root { display: none !important; }
+}
+
+/* ── top bar（三列等宽，标题永远居中）── */
+.ds-topbar {
+  height: 54px;
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr; // 左占位 | 中标题 | 右按钮
+  align-items: center;
+  padding: 0 clamp(12px, 2vw, 24px);
+  background: rgba(26, 22, 18, 0.92);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid $border;
+}
+.ds-topbar-left {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.ds-topbar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.ds-topbar-toggle {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  border: 1px solid $border;
+  background: transparent;
+  color: $muted;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s ease, color 0.18s ease;
+  &:hover { background: #2e2822; color: $text; }
+}
+.ds-session-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $text;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  padding: 0 8px;
+}
+.ds-new-chat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1.5px solid $border;
+  background: #2a2520;
+  color: $muted;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+  &:hover { border-color: rgba($orange, 0.5); color: $orange; }
+}
+
+/* ── messages ── */
+.ds-messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 24px clamp(16px, 4vw, 32px);
+  display: flex;
+  flex-direction: column;
   gap: 20px;
-  padding: 20px;
-  .sidebar {
-    width: 320px;
-    .ai-assistant-info {
-      margin-bottom: 20px;
-      background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.9) 0%,
-        rgba(255, 252, 248, 0.95) 100%
-      );
-      border-radius: 16px;
-      padding: 16px;
-      box-shadow:
-        0 8px 32px rgba(251, 146, 60, 0.06),
-        0 2px 8px rgba(0, 0, 0, 0.04);
-      border: 1px solid rgba(251, 146, 60, 0.08);
-      backdrop-filter: blur(10px);
-      transition: all 0.3s ease;
-      .breathing-circle {
-        width: 60px;
-        height: 60px;
-        background: linear-gradient(135deg, #fb923c 0%, #f59e0b 100%);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 12px;
-        animation: breathing 4s ease-in-out infinite;
-        box-shadow: 0 6px 24px rgba(251, 146, 60, 0.25);
-        position: relative;
-      }
-      .assistant-name {
-        font-size: 16px;
-        font-weight: 700;
-        background: linear-gradient(135deg, #fb923c, #f59e0b);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-align: center;
-        background-clip: text;
-        margin: 0 0 12px;
-      }
-      .online-status {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #c2410c;
-        font-size: 12px;
-        font-weight: 600;
-        .status-dot {
-          width: 8px;
-          height: 8px;
-          background: #ea580c;
-          border-radius: 50%;
-          margin-right: 8px;
-          animation: pulse 2s infinite;
-          box-shadow: 0 0 8px rgba(234, 88, 12, 0.45);
-        }
-      }
-    }
-    .session-history {
-      background: white;
-      border-radius: 16px;
-      padding: 16px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px;
-      min-height: 250px;
-      display: flex;
-      flex-direction: column;
-      .section-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: #333;
-        margin: 0 0 16px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-      .session-list {
-        overflow-y: auto;
-        max-height: 200px;
-        scrollbar-width: thin;
-        scrollbar-color: rgba(64, 150, 255, 0.3) transparent;
-        .session-item {
-          position: relative;
-          display: flex;
-          align-items: flex-start;
-          gap: 12px;
-          padding: 12px;
-          margin-bottom: 8px;
-          border-radius: 12px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          border: 2px solid transparent;
-          &:hover {
-            background: #fff7ed;
-            border-color: #fed7aa;
-          }
-          &.active {
-            background: #ffedd5;
-            border-color: #ea580c;
-          }
-          .session-info {
-            flex: 1;
-            .session-title {
-              font-weight: 500;
-              font-size: 14px;
-              color: #333;
-              margin-bottom: 4px;
-              white-space: nowrap;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              .session-meta {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                margin-bottom: 6px;
-                .session-time {
-                  font-size: 12px;
-                  color: #999;
-                }
-              }
-              .session-preview {
-                width: 200px;
-                font-size: 12px;
-                color: #666;
-                margin-bottom: 6px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-              }
-              .session-stats {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                span {
-                  font-size: 12px;
-                  color: #999;
-                  display: flex;
-                  align-items: center;
-                  gap: 4px;
-                }
-              }
-            }
-            .session-actions {
-              position: absolute;
-              top: 10px;
-              right: 12px;
-            }
-          }
-        }
-        .no-sessions-text {
-          text-align: center;
-          font-size: 14px;
-          color: #999;
-        }
-      }
-    }
-    .emotion-garden {
-      background: linear-gradient(
-        135deg,
-        #fef9e7 0%,
-        #fcf4e6 50%,
-        #f6f0e8 100%
-      );
-      border-radius: 20px;
-      padding: 16px;
-      margin-bottom: 20px;
-      box-shadow: 0 8px 32px rgba(252, 244, 230, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      position: relative;
-      overflow: hidden;
-      min-height: 300px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba($orange, 0.25) transparent;
+}
 
-      .garden-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 20px;
-        position: relative;
-        z-index: 2;
-        .garden-title {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 16px;
-          font-weight: 600;
-          color: #8b4513;
-        }
-      }
-      .emotion-info {
-        margin: 0 auto;
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        z-index: 10;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-        border: 2px solid rgba(255, 255, 255, 0.8);
-        background: linear-gradient(
-          135deg,
-          #ff9a9e 0%,
-          #fecfef 50%,
-          #fecfef 100%
-        );
-        color: #fff;
-        .emotion-name {
-          font-size: 15px;
-          font-weight: 600;
-          line-height: 1;
-          margin-bottom: 2px;
-        }
-        .emotion-score {
-          font-size: 14px;
-          font-weight: 700;
-          opacity: 0.9;
-        }
-      }
-      .warm-tips {
-        text-align: center;
-        margin-bottom: 16px;
-        .emotion-status-text {
-          margin-bottom: 12px;
-          .status-label {
-            font-size: 14px;
-            color: #8b7355;
-            margin-right: 8px;
-          }
-          .status-emotion {
-            font-size: 16px;
-            font-weight: 600;
-            padding: 4px 12px;
-            border-radius: 16px;
-            display: inline-block;
-          }
-        }
-        .emotion-intensity {
-          margin-bottom: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          .intensity-dots {
-            display: flex;
-            gap: 4px;
-            .dot {
-              width: 8px;
-              height: 8px;
-              border-radius: 50%;
-              background: #e0e0e0;
-              transition: all 0.3s ease;
-              &.active {
-                background: linear-gradient(135deg, #ff9a9e, #fecfef);
-                transform: scale(1.2);
-                box-shadow: 0 2px 8px rgba(255, 154, 158, 0.4);
-              }
-            }
-          }
-          .intensity-text {
-            font-size: 12px;
-            color: #8b7355;
-            font-weight: 500;
-          }
-        }
-        .warm-suggestion {
-          background: linear-gradient(
-            135deg,
-            rgba(255, 255, 255, 0.95),
-            rgba(255, 255, 255, 0.8)
-          );
-          border-radius: 16px;
-          padding: 12px;
-          margin-bottom: 16px;
-          display: flex;
-          align-items: flex-start;
-          gap: 10px;
-          border: 1px solid rgba(255, 255, 255, 0.6);
-          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-          .suggestion-icon {
-            flex-shrink: 0;
-            margin-top: 2px;
-            color: #d4a27a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: icon-soft 2.8s ease-in-out infinite;
-          }
-          .suggestion-content {
-            text-align: left;
-            flex: 1;
-            .suggestion-title {
-              font-size: 14px;
-              font-weight: 600;
-              color: #8b7355;
-              margin-bottom: 6px;
-            }
-            .suggestion-text {
-              font-size: 13px;
-              color: #6b5b47;
-              line-height: 1.5;
-            }
-          }
-        }
-        .healing-actions {
-          margin-bottom: 16px;
-          .actions-title {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #8b7355;
-            margin-bottom: 16px;
-          }
-          .actions-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            .action-item {
-              background: linear-gradient(
-                135deg,
-                rgba(255, 255, 255, 0.9),
-                rgba(255, 255, 255, 0.7)
-              );
-              border-radius: 12px;
-              padding: 12px;
-              display: flex;
-              align-items: center;
-              gap: 10px;
-              border: 1px solid rgba(255, 255, 255, 0.5);
-              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-              text-align: left;
-              .action-icon {
-                color: #f59e0b;
-                flex-shrink: 0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                animation: icon-twinkle 2.2s ease-in-out infinite;
-              }
-              .action-text {
-                font-size: 12px;
-                color: #6b5b47;
-                line-height: 1.4;
-                flex: 1;
-              }
-            }
-          }
-        }
-        .risk-notice {
-          background: linear-gradient(135deg, #fff9e6, #ffeaa7);
-          border-radius: 16px;
-          padding: 16px;
-          display: flex;
-          align-items: flex-start;
-          gap: 12px;
-          border: 1px solid rgba(255, 234, 167, 0.6);
-          box-shadow: 0 6px 20px rgba(255, 234, 167, 0.3);
-          .notice-icon {
-            flex-shrink: 0;
-            margin-top: 2px;
-            color: #d4840f;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-          .notice-content {
-            flex: 1;
-            .notice-title {
-              font-size: 14px;
-              font-weight: 600;
-              color: #d4840f;
-              margin-bottom: 6px;
-            }
-            .notice-text {
-              font-size: 13px;
-              color: #b8740c;
-              line-height: 1.5;
-            }
-          }
-        }
-      }
-    }
+/* welcome screen */
+.ds-welcome {
+  margin: auto;
+  text-align: center;
+  max-width: 480px;
+  padding: 40px 20px;
+}
+.dw-avatar {
+  width: 80px; height: 80px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(251,146,60,.22), rgba(245,158,11,.14));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  box-shadow: 0 8px 24px rgba($orange, 0.12);
+}
+.dw-title {
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  font-weight: 800;
+  color: $text;
+  letter-spacing: -0.03em;
+  margin-bottom: 10px;
+}
+.dw-sub {
+  font-size: 0.95rem;
+  color: $muted;
+  line-height: 1.6;
+  margin-bottom: 28px;
+  min-height: 1.6em; // 防止打字机切换时高度抖动
+}
+.dw-typewriter { vertical-align: baseline; }
+.dw-cursor {
+  display: inline-block;
+  margin-left: 1px;
+  color: $orange;
+  font-weight: 300;
+  line-height: 1;
+  vertical-align: baseline;
+  // 打字时常亮，停顿时闪烁
+  &.dw-cursor--blink {
+    animation: cursor-blink 0.9s step-end infinite;
   }
-  .chat-main {
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.95) 0%,
-      rgba(255, 252, 250, 0.98) 100%
-    );
-    border-radius: 20px;
-    box-shadow:
-      0 12px 40px rgba(251, 146, 60, 0.08),
-      0 4px 16px rgba(0, 0, 0, 0.04);
-    border: 1px solid rgba(251, 146, 60, 0.1);
-    backdrop-filter: blur(10px);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    flex: 1;
-    .chat-header {
-      background: linear-gradient(135deg, #fb923c 0%, #f59e0b 100%);
-      color: white;
-      padding: 20px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: relative;
-      flex-shrink: 0;
-      .header-left {
-        display: flex;
-        align-items: center;
-        .chat-avatar {
-          width: 48px;
-          height: 48px;
-          background: rgba(255, 255, 255, 0.25);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-right: 16px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          position: relative;
-          z-index: 1;
-        }
-        .chat-info {
-          h2 {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 4px;
-          }
-          p {
-            font-size: 14px;
-          }
-        }
-      }
-    }
-    .chat-messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 24px;
+}
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.dw-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.dw-chip {
+  padding: 8px 16px;
+  border-radius: 50px;
+  border: 1.5px solid $border;
+  background: #2a2520;
+  color: #c0b4a8;
+  font-size: 0.84rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  &:hover { border-color: rgba($orange, 0.5); background: rgba($orange, 0.12); color: $orange; }
+}
+
+/* message rows */
+.ds-msg-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 820px;
+  width: 100%;
+
+  &.row-user {
+    flex-direction: row-reverse;
+    align-self: flex-end;
+
+    // 让 body 收缩至内容宽度，气泡不撑满整行
+    .ds-msg-body {
+      flex: 0 1 auto;
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.02) 0%,
-        rgba(255, 252, 248, 0.05) 100%
-      );
-      min-height: 0;
-      max-height: calc(100vh - 200px);
-      scrollbar-width: thin;
-      scrollbar-color: rgba(251, 146, 60, 0.3) transparent;
-      .message-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        .message-avatar {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 14px;
-          color: white;
-          flex-shrink: 0;
-        }
-        &.ai-message {
-          .message-avatar {
-            background: linear-gradient(135deg, #fb923c, #f59e0b);
-            box-shadow: 0 4px 12px rgba(251, 146, 60, 0.3);
-          }
-        }
-        &.user-message {
-          .message-avatar {
-            background: linear-gradient(135deg, #6b7280, #4b5563);
-            box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
-          }
-        }
-        .message-content {
-          max-width: 70%;
-          .message-bubble {
-            background: linear-gradient(
-              135deg,
-              rgba(255, 255, 255, 0.9) 0%,
-              rgba(255, 252, 248, 0.95) 100%
-            );
-            border-radius: 16px;
-            padding: 12px 16px;
-            position: relative;
-            animation: fadeInUp 0.4s ease-out;
-            border: 1px solid rgba(251, 146, 60, 0.1);
-            box-shadow: 0 4px 16px rgba(251, 146, 60, 0.05);
-            .typing-indicator {
-              display: flex;
-              gap: 4px;
-              padding: 8px 0;
-              .typing-dot {
-                width: 8px;
-                height: 8px;
-                background: #ccc;
-                border-radius: 50%;
-                animation: typing 1.5s ease-in-out infinite;
-                &:nth-child(2) {
-                  animation-delay: 0.2s;
-                }
-                &:nth-child(3) {
-                  animation-delay: 0.4s;
-                }
-              }
-            }
-            /* 错误消息样式 */
-            .error-message {
-              background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
-              border: 1px solid #f87171;
-              border-radius: 12px;
-              padding: 12px 16px;
-              color: #991b1b;
-              font-weight: 500;
-              display: flex;
-              align-items: center;
-              gap: 8px;
-            }
-          }
-          .message-time {
-            font-size: 12px;
-            color: #999;
-            margin-top: 4px;
-          }
-        }
-      }
-    }
-    .chat-input {
-      border-top: 1px solid rgba(251, 146, 60, 0.1);
-      padding: 20px 24px;
-      display: flex;
-      gap: 12px;
       align-items: flex-end;
-      background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.5) 0%,
-        rgba(255, 252, 248, 0.7) 100%
-      );
-      backdrop-filter: blur(10px);
-      flex-shrink: 0;
-      .input-container {
-        flex: 1;
-      }
-      .input-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 12px;
-        color: #78716c;
-        font-weight: 500;
-      }
-      .send-btn {
-        height: 60px;
-        width: 60px;
-        border-radius: 16px;
-        background: linear-gradient(
-          135deg,
-          #fb923c 0%,
-          #f59e0b 100%
-        ) !important;
-        border: none !important;
-        box-shadow: 0 6px 20px rgba(251, 146, 60, 0.25);
-        transition:
-          transform 0.25s var(--mh-ease-out, ease-out),
-          box-shadow 0.25s ease;
-      }
+    }
+    .ds-msg-bubble {
+      display: inline-block;
+      background: linear-gradient(135deg, $orange, #f59e0b);
+      color: #fff;
+      border-radius: 18px 4px 18px 18px;
+      box-shadow: 0 4px 16px rgba($orange, 0.25);
+    }
+    .ds-msg-time { text-align: right; }
+  }
 
-      .send-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 28px rgba(251, 146, 60, 0.35);
-      }
+  &.row-ai {
+    align-self: flex-start;
+    .ds-msg-bubble {
+      background: #2a2520;
+      color: $text;
+      border-radius: 4px 18px 18px 18px;
+      border: 1px solid $border;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
   }
 }
+.ds-msg-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fb923c, #f59e0b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba($orange, 0.25);
 
-@keyframes icon-soft {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.06);
-    opacity: 0.88;
+  &.ds-msg-avatar--user {
+    background: linear-gradient(135deg, #6b7280, #4b5563);
+    box-shadow: 0 3px 10px rgba(107, 114, 128, 0.2);
   }
 }
-
-@keyframes icon-twinkle {
-  0%,
-  100% {
-    transform: rotate(0deg) scale(1);
-  }
-  50% {
-    transform: rotate(-10deg) scale(1.08);
-  }
+.ds-msg-body { flex: 1; min-width: 0; }
+.ds-msg-bubble {
+  padding: 12px 16px;
+  font-size: 0.93rem;
+  line-height: 1.7;
+  word-break: break-word;
+  animation: msg-in 0.35s $ease both;
+}
+@keyframes msg-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+.ds-msg-time {
+  font-size: 0.72rem;
+  color: #5e5048;
+  margin-top: 5px;
+  padding: 0 4px;
+}
+.ds-msg-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ef4444;
+  font-size: 0.875rem;
 }
 
-@keyframes breathing {
-  0%,
-  100% {
-    transform: scale(1);
-    box-shadow: 0 6px 24px rgba(251, 146, 60, 0.25);
-  }
-  50% {
-    transform: scale(1.06);
-    box-shadow: 0 10px 32px rgba(251, 146, 60, 0.35);
+/* typing indicator */
+.ds-typing {
+  display: flex;
+  gap: 5px;
+  padding: 6px 2px;
+  span {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #4a3e35;
+    animation: ds-bounce 1.4s ease-in-out infinite;
+    &:nth-child(2) { animation-delay: 0.18s; }
+    &:nth-child(3) { animation-delay: 0.36s; }
   }
 }
+@keyframes ds-bounce {
+  0%, 80%, 100% { transform: translateY(0); background: #4a3e35; }
+  40%           { transform: translateY(-8px); background: $orange; }
+}
 
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
+/* ── input area ── */
+.ds-input-area {
+  flex-shrink: 0;
+  padding: 12px clamp(16px, 4vw, 32px) 16px;
+  background: rgba(22, 18, 14, 0.95);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid $border;
+}
+.ds-input-card {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  background: #272219;
+  border: 1.5px solid $border;
+  border-radius: 14px;
+  padding: 10px 10px 10px 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  max-width: 820px;
+  margin: 0 auto;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  &:focus-within {
+    border-color: $orange-light;
+    box-shadow: 0 0 0 3px rgba($orange, 0.08), 0 2px 12px rgba(0,0,0,0.06);
   }
-  50% {
-    opacity: 0.65;
-    transform: scale(1.15);
+}
+.ds-textarea {
+  flex: 1;
+  :deep(.el-textarea__inner) {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0;
+    background: transparent;
+    font-size: 0.93rem;
+    line-height: 1.6;
+    resize: none;
+    color: $text;
+    &::placeholder { color: #5e5048; }
   }
+}
+.ds-send-btn {
+  flex-shrink: 0;
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  border: none;
+  background: #3d3530;
+  color: #5e5048;
+  cursor: not-allowed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s $ease;
+
+  &.active {
+    background: $orange;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba($orange, 0.35);
+    &:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba($orange, 0.4); }
+    &:active { transform: none; }
+  }
+}
+.ds-input-hint {
+  max-width: 820px;
+  margin: 6px auto 0;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: #5e5048;
+  padding: 0 4px;
+  .hint-warn { color: #f87171; }
+}
+
+/* ── responsive ── */
+@media (max-width: 768px) {
+  .ds-layout { flex-direction: column; }
+  .ds-sidebar {
+    width: 100% !important;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid $border;
+    max-height: 280px;
+  }
+  .ds-layout.sb-collapsed .ds-sidebar {
+    width: 100% !important;
+    max-height: 0;
+    opacity: 0;
+  }
+  .ds-main { height: calc(100dvh - 340px); min-height: 400px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .consultation-container .warm-tips .suggestion-icon,
-  .consultation-container .healing-actions .action-icon {
-    animation: none;
-  }
-
-  .consultation-container .chat-main .send-btn:hover {
-    transform: none;
-  }
-
-  .consultation-container .breathing-circle,
-  .consultation-container .status-dot {
-    animation: none !important;
-  }
+  .ds-sidebar { transition: none; }
+  .ds-msg-bubble { animation: none; }
+  .ds-typing span { animation: none; }
+  .ds-send-btn.active:hover { transform: none; }
 }
 </style>
